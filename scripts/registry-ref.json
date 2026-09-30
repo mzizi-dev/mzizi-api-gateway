@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/mzizi-dev/mzizi-registry",
-  "ref": "06389e5fb3c1d9a5faccd397d8cbedd3a6d4b178",
+  "ref": "81f7379ad599428048dc6390a8e1165f6e695880",
   "pinned": "2026-09-30",
-  "note": "mzizi-registry main on 2026-09-30, after #384 (@nyuchi/mzizi-skills 0.8.2: /v1/skills serves the 0.8.2 skills, with the Mzizi -> hematite row in mzizi-design; the public plugin is 1.2.1). Bump by hand, then run npm run build:data, npm test and npm run parity."
+  "note": "mzizi-registry main at 81f7379 on 2026-09-30, set by .github/workflows/registry-pin-bump.yml. The commits since the last pin are listed in its pull request."
 }
