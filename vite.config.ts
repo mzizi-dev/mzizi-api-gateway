@@ -23,10 +23,11 @@ export default defineConfig({
     ],
   },
   lint: {
-    // scripts/extract.ts is not this package's code: build-data.mjs bundles
-    // it INSIDE a mzizi-registry checkout, where `@/` resolves into that
-    // repo. Type checking it here can only report the alias as missing.
-    ignorePatterns: ["scripts/extract.ts"],
+    // scripts/extract.ts and the registry handlers it runs are not this
+    // package's code: build-data.mjs bundles them INSIDE a mzizi-registry
+    // checkout, where `@/` and `next/server` resolve. Type checking them here
+    // can only report those imports as missing.
+    ignorePatterns: ["scripts/extract.ts", "scripts/registry-handlers/**"],
     // Without typeCheck, `vp check` is oxlint only and passes type errors.
     options: { typeAware: true, typeCheck: true },
   },
