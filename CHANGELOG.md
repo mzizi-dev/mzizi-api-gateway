@@ -44,6 +44,14 @@ To see which registry commit production is serving, read the
   README, "Registry pin bump", and CONTRIBUTING are updated to match. No route,
   response or pin changes.
 
+### Added — `AGENTS.md` links the published design system (2026-10-04)
+
+- **`AGENTS.md` links the Design System artifact**
+  (<https://claude.ai/artifact/G8CCtAbZ8w717uQ3R5itCc>) and names its source of
+  truth, the `design-system/` folder in mzizi-registry, which arrives with
+  mzizi-registry#418. Edit the folder, never the artifact page. Docs only: no
+  route, response or pin changes.
+
 ### Changed — Mukoko Events replaces nhimbe in `/v1/brand`, and the brand rows carry `displayName` and `aliases` (2026-10-04)
 
 - **The registry pin moves to mzizi-registry `2af5e5e`** (main, after
