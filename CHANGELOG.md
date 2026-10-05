@@ -33,6 +33,7 @@ To see which registry commit production is serving, read the
   untagged were tagged on their existing `main` commits on 2026-10-06:
   `v0.1.0` on `4eccb2e` (#50) and `v0.2.0` on `fcb0f32` (#54), so the next
   release is `v0.3.0`. CI only: no API change.
+
 ### Changed — the registry pin moves to mzizi-registry `main` at `5067b5e` (v4.4.0) (2026-10-06)
 
 - **The registry pin moves from `2902393` (v4.3.0) to `5067b5e`**, registry
