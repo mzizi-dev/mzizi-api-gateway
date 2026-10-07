@@ -87,24 +87,20 @@ const HEADERS = [
  * Mukoko Events replacing nhimbe from mzizi-registry#411, #51 for the
  * 409a047 hand pin and the /v1/astro OpenAPI paths, #53 for 2902393, registry
  * v4.3.0, #56 for 5067b5e, registry v4.4.0, #60 for 9f3631c, registry v4.5.0, #65 for 0caf9dc, registry v4.6.0, #68 for 81a37ed,
- * registry v4.7.0).
+ * registry v4.7.0, #70 for f70703d, registry v4.8.0).
  */
-// The registry pin moves from registry main 81a37ed (v4.7.0) to f70703d, the
-// v4.8.0 release (mzizi-registry#469), which adds #468: markdown-parse compiles
-// under noUncheckedIndexedAccess. No component is added or removed and no
-// status moves. The previous entries (81a37ed) are in #68.
+// /v1/brand serves each mineral's full palette record (mzizi-registry#316):
+// role, family, onContainerLight/onContainerDark, sortOrder and the `-text`
+// pair are added; nothing served before changes. The f70703d (v4.8.0) pin's
+// entries were pruned once production served them (they are in #70).
 const EXPECTED = {
-  "GET /api/v1/changelog": {
+  "GET /v1/brand": {
     allow: ["body"],
-    why: "Release records: the v4.8.0 record (mzizi-registry#469) leads the list. The earlier rows are unchanged.",
+    why: "mzizi-registry#316: each mineral gains role, family, onContainerLight/onContainerDark, textLight/textDark (the registry's textOnBaseTier(), `--color-<name>-text`) and sortOrder, from lib/tokens/palette.source.ts. Additive: every field served before keeps its value and relative order.",
   },
-  "GET /v1/changelog": {
+  "GET /api/v1/brand": {
     allow: ["body"],
-    why: "Release records: the v4.8.0 record (mzizi-registry#469) leads the list. The earlier rows are unchanged.",
-  },
-  "GET /v1/ui/markdown-parse": {
-    allow: ["body"],
-    why: "mzizi-registry#468: markdown-parse compiles under noUncheckedIndexedAccess (every index checked), with no behaviour change.",
+    why: "mzizi-registry#316: each mineral gains role, family, onContainerLight/onContainerDark, textLight/textDark (the registry's textOnBaseTier(), `--color-<name>-text`) and sortOrder, from lib/tokens/palette.source.ts. Additive: every field served before keeps its value and relative order.",
   },
 };
 

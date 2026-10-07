@@ -23,6 +23,21 @@ To see which registry commit production is serving, read the
 
 ## [Unreleased]
 
+### Added — `/v1/brand` minerals carry their text tokens and the full palette record (2026-10-07)
+
+- **Each of the seven `minerals[]` gains `onContainerLight` / `onContainerDark`**,
+  the text colour on the mineral's container, and **`textLight` / `textDark`**,
+  the mineral as text on `--base` (the value of `--color-<mineral>-text` in
+  `mzizi-tokens-globals.css`, from the registry's `textOnBaseTier()` at the
+  pinned commit). Before this a caller could not discover a mineral text
+  token and reached for `darkHex`, an accent (mzizi-registry#316).
+- **`role`, `family` and `sortOrder`** are served too, so a mineral is the
+  whole `MineralToken` from `lib/tokens/palette.source.ts`, plus `hex`.
+- Additive: every field served before keeps its value and its relative order,
+  including `hex` (`mineralApiHex`). `scripts/parity.mjs` `EXPECTED` lists the
+  difference on `/v1/brand` and `/api/v1/brand`, and prunes the v4.8.0 pin's
+  entries, which production now serves.
+
 ### Changed — the registry pin moves to mzizi-registry `main` at `f70703d` (v4.8.0) (2026-10-07)
 
 - **The registry pin moves from `81a37ed` (v4.7.0) to `f70703d`**, registry

@@ -151,6 +151,7 @@ const files = {
   "skills.json": data.skills,
   "samples.json": data.samples,
   "brand.json": data.brand,
+  "mineral-text.json": data.mineralText,
   "meta.json": {
     repository: pin.repository,
     ref: pin.ref,

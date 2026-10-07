@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from "vite-plus/test";
 import app from "../src/index";
-import { components } from "../src/data";
+import { brand, components } from "../src/data";
 
 const get = (path: string, init?: RequestInit) => app.request(path, init);
 
@@ -478,6 +478,63 @@ describe("architecture and content", () => {
     expect(
       body.minerals.length + body.heritage.length + body.experimental.length,
     ).toBe(21);
+  });
+
+  it("serves each mineral's full palette record and its -text pair (mzizi-registry#316)", async () => {
+    const res = await get("/v1/brand");
+    const body = (await res.json()) as {
+      minerals: Record<string, unknown>[];
+    };
+    expect(body.minerals.map((m) => Object.keys(m))).toEqual(
+      body.minerals.map(() => [
+        "name",
+        "role",
+        "family",
+        "hex",
+        "lightHex",
+        "darkHex",
+        "containerLight",
+        "containerDark",
+        "onContainerLight",
+        "onContainerDark",
+        "textLight",
+        "textDark",
+        "cssVar",
+        "sortOrder",
+        "origin",
+        "symbolism",
+        "usage",
+      ]),
+    );
+    // Every MineralToken field is served as the palette has it.
+    for (const m of brand.minerals as Record<string, unknown>[]) {
+      const served = body.minerals.find((x) => x.name === m.name);
+      expect(served).toMatchObject(m);
+    }
+    const byName = Object.fromEntries(body.minerals.map((m) => [m.name, m]));
+    // The text a consumer could not find before: on-container text, and the
+    // mineral as text on --base, which is `--color-<name>-text` in
+    // mzizi-tokens-globals.css at the pinned registry commit.
+    expect(byName.sodalite).toMatchObject({
+      role: "Intelligence",
+      family: "deep-earth",
+      onContainerLight: "#141A5C",
+      onContainerDark: "#C5CAE9",
+      textLight: "#283593",
+      textDark: "#C6CFFF",
+    });
+    expect(byName.terracotta).toMatchObject({
+      textLight: "#8E4928",
+      textDark: "#EBCCA3",
+    });
+    // `hex` keeps its documented per-mineral value (brand.source.ts
+    // `mineralApiHex`): light for cobalt, dark for tanzanite.
+    expect(byName.cobalt.hex).toBe("#0047AB");
+    expect(byName.tanzanite.hex).toBe("#B388FF");
+    for (const m of body.minerals) {
+      expect(m.textLight).toMatch(/^#[0-9A-F]{6}$/);
+      expect(m.textDark).toMatch(/^#[0-9A-F]{6}$/);
+    }
   });
 
   it("projects a brand's accent family only on the rows that carry one", async () => {

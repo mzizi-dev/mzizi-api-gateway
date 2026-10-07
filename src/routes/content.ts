@@ -8,6 +8,7 @@ import {
   changelog,
   components,
   doctrine,
+  mineralText,
   readAiInstruction,
   samples,
   skills,
@@ -69,14 +70,27 @@ export function registerContent(v1: Hono) {
         name: meta.name,
         lastUpdated: meta.lastUpdated,
         homepage: meta.homepage,
+        // The full MineralToken from lib/tokens/palette.source.ts, plus `hex`
+        // and the `-text` pair (mzizi-registry#316). Every field that was
+        // served before keeps its value and its relative order; `role`,
+        // `family`, `onContainer*`, `textLight`/`textDark` and `sortOrder` are
+        // additions. `onContainer*` is text on the mineral's container;
+        // `text*` is the mineral as text on `--base` (`--color-<name>-text`).
         minerals: (brand.minerals as Row[]).map((m) => ({
           name: m.name,
+          role: m.role,
+          family: m.family,
           hex: apiHex[m.name as string] ?? m.darkHex,
           lightHex: m.lightHex,
           darkHex: m.darkHex,
           containerLight: m.containerLight,
           containerDark: m.containerDark,
+          onContainerLight: m.onContainerLight,
+          onContainerDark: m.onContainerDark,
+          textLight: mineralText[m.name as string]?.light,
+          textDark: mineralText[m.name as string]?.dark,
           cssVar: m.cssVar,
+          sortOrder: m.sortOrder,
           origin: m.origin,
           symbolism: m.symbolism,
           usage: m.usage,

@@ -70,6 +70,7 @@ import {
   spacing,
   typography,
 } from "@/lib/tokens/brand.source";
+import { textOnBaseTier } from "@/scripts/render-globals-css";
 import { OPENAPI_YAML } from "@/lib/openapi.generated";
 import { COMPONENT_RENAMES } from "@/lib/component-renames";
 import { CRATE_GIT, crateFor } from "@/lib/rust-crates";
@@ -417,6 +418,16 @@ async function main() {
       spacing,
       typography,
     },
+    // The `-text` value per mineral (mzizi-registry 673b4341): the colour to
+    // use for the mineral as text on `--base`, light and dark. The registry
+    // emits it as `--color-<mineral>-text` in mzizi-tokens-globals.css from
+    // this same function, so the API and the stylesheet cannot disagree.
+    mineralText: Object.fromEntries(
+      [...textOnBaseTier(minerals)].map(([name, v]) => [
+        name,
+        { light: v.light.hex, dark: v.dark.hex },
+      ]),
+    ),
     openapiYaml: OPENAPI_YAML,
     renames: COMPONENT_RENAMES,
     crateGit: CRATE_GIT,
