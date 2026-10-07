@@ -12,7 +12,6 @@ import doctrineJson from "./data/doctrine.json";
 import skillsJson from "./data/skills.json";
 import samplesJson from "./data/samples.json";
 import brandJson from "./data/brand.json";
-import mineralTextJson from "./data/mineral-text.json";
 import metaJson from "./data/meta.json";
 import componentDocsJson from "./data/component-docs.json";
 import aiInstructionIndexJson from "./data/ai-instruction-index.json";
@@ -122,15 +121,6 @@ export const skills = skillsJson as Loose as {
 };
 export const samples = samplesJson as Loose as Record<string, unknown[]>;
 export const brand = brandJson as Loose;
-/**
- * Each mineral's `-text` value, light and dark: the registry's
- * `textOnBaseTier()` (scripts/render-globals-css.ts), the function that writes
- * `--color-<mineral>-text` into mzizi-tokens-globals.css.
- */
-export const mineralText = mineralTextJson as Loose as Record<
-  string,
-  { light: string; dark: string }
->;
 
 /**
  * lib/db `getComponentWithDocs(name)` → `{ docs, demo }`, per component: the docs

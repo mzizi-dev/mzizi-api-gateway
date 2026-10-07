@@ -8,7 +8,6 @@ import {
   changelog,
   components,
   doctrine,
-  mineralText,
   readAiInstruction,
   samples,
   skills,
@@ -70,12 +69,15 @@ export function registerContent(v1: Hono) {
         name: meta.name,
         lastUpdated: meta.lastUpdated,
         homepage: meta.homepage,
-        // The full MineralToken from lib/tokens/palette.source.ts, plus `hex`
-        // and the `-text` pair (mzizi-registry#316). Every field that was
-        // served before keeps its value and its relative order; `role`,
-        // `family`, `onContainer*`, `textLight`/`textDark` and `sortOrder` are
-        // additions. `onContainer*` is text on the mineral's container;
-        // `text*` is the mineral as text on `--base` (`--color-<name>-text`).
+        // Each colour family carries its `-text` pair (mzizi-registry#316):
+        // `textLight` / `textDark`, the family as text on `--base`
+        // (`--color-<name>-text`), merged into brand.json by extract.ts from
+        // the registry's textOnBaseTier() and checked there against
+        // mzizi-tokens-globals.css. Minerals also serve the rest of the
+        // `MineralToken` in lib/tokens/palette.generated.ts: `role`,
+        // `family`, `onContainerLight` / `onContainerDark` (text on the
+        // mineral's container) and `sortOrder`. All additions: every field
+        // served before keeps its value and its relative order.
         minerals: (brand.minerals as Row[]).map((m) => ({
           name: m.name,
           role: m.role,
@@ -87,8 +89,8 @@ export function registerContent(v1: Hono) {
           containerDark: m.containerDark,
           onContainerLight: m.onContainerLight,
           onContainerDark: m.onContainerDark,
-          textLight: mineralText[m.name as string]?.light,
-          textDark: mineralText[m.name as string]?.dark,
+          textLight: m.textLight,
+          textDark: m.textDark,
           cssVar: m.cssVar,
           sortOrder: m.sortOrder,
           origin: m.origin,
@@ -155,6 +157,8 @@ export function registerContent(v1: Hono) {
           hex: h.darkHex,
           lightHex: h.lightHex,
           darkHex: h.darkHex,
+          textLight: h.textLight,
+          textDark: h.textDark,
           cssVar: h.cssVar,
           origin: h.origin,
           symbolism: h.symbolism,
@@ -169,6 +173,8 @@ export function registerContent(v1: Hono) {
           containerDark: e.containerDark,
           onContainerLight: e.onContainerLight,
           onContainerDark: e.onContainerDark,
+          textLight: e.textLight,
+          textDark: e.textDark,
           uiLight: e.uiLight,
           uiDark: e.uiDark,
           cssVar: `--color-${e.name}`,

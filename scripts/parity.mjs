@@ -76,6 +76,14 @@ const HEADERS = [
  * `location`, `body` or `header:<name>` — so a new regression on the same
  * request (a 500, a lost header) still fails the run.
  *
+ * `added` is narrower than allowing `body`, for a change that only adds keys
+ * to the objects of a JSON array: `{ "<top-level key>": ["<new key>", …] }`.
+ * The candidate body must carry every listed key on every element of each
+ * listed array; with those keys removed it must equal the baseline exactly,
+ * key order included. Only then is the difference the kind `body:added`,
+ * which the entry's `allow` must name. Any other change to the body stays a
+ * plain `body` difference and fails the run.
+ *
  * The baseline is api.mzizi.dev, which this Worker already serves, so these
  * are only what the current registry pin changes. Earlier bumps' entries are in
  * the PRs that made them (mzizi-api-gateway#13 for the cutover, #18 for
@@ -89,19 +97,32 @@ const HEADERS = [
  * v4.3.0, #56 for 5067b5e, registry v4.4.0, #60 for 9f3631c, registry v4.5.0, #65 for 0caf9dc, registry v4.6.0, #68 for 81a37ed,
  * registry v4.7.0, #70 for f70703d, registry v4.8.0).
  */
-// /v1/brand serves each mineral's full palette record (mzizi-registry#316):
-// role, family, onContainerLight/onContainerDark, sortOrder and the `-text`
-// pair are added; nothing served before changes. The f70703d (v4.8.0) pin's
-// entries were pruned once production served them (they are in #70).
+// /v1/brand: every colour family gains its `-text` pair (`textLight`,
+// `textDark`), and each mineral the rest of its MineralToken (`role`,
+// `family`, `onContainerLight`, `onContainerDark`, `sortOrder`), from
+// lib/tokens/palette.generated.ts (mzizi-registry#316). Nothing served before
+// changes, which `added` holds the body to. The f70703d (v4.8.0) pin's entries
+// were pruned once production served them (they are in #70).
+const BRAND_ADDED = {
+  allow: ["body:added"],
+  added: {
+    minerals: [
+      "role",
+      "family",
+      "onContainerLight",
+      "onContainerDark",
+      "textLight",
+      "textDark",
+      "sortOrder",
+    ],
+    heritage: ["textLight", "textDark"],
+    experimental: ["textLight", "textDark"],
+  },
+  why: "mzizi-registry#316: every colour family gains textLight/textDark (the registry's textOnBaseTier(), `--color-<name>-text`), and each mineral role, family, onContainerLight/onContainerDark and sortOrder from lib/tokens/palette.generated.ts. Only these keys are added; the rest of the body equals production.",
+};
 const EXPECTED = {
-  "GET /v1/brand": {
-    allow: ["body"],
-    why: "mzizi-registry#316: each mineral gains role, family, onContainerLight/onContainerDark, textLight/textDark (the registry's textOnBaseTier(), `--color-<name>-text`) and sortOrder, from lib/tokens/palette.source.ts. Additive: every field served before keeps its value and relative order.",
-  },
-  "GET /api/v1/brand": {
-    allow: ["body"],
-    why: "mzizi-registry#316: each mineral gains role, family, onContainerLight/onContainerDark, textLight/textDark (the registry's textOnBaseTier(), `--color-<name>-text`) and sortOrder, from lib/tokens/palette.source.ts. Additive: every field served before keeps its value and relative order.",
-  },
+  "GET /v1/brand": BRAND_ADDED,
+  "GET /api/v1/brand": BRAND_ADDED,
 };
 
 // ── Build the request list ─────────────────────────────────────────────────
@@ -343,6 +364,31 @@ function firstDiff(a, b, at = "$") {
   return null;
 }
 
+/**
+ * An EXPECTED entry's `added` check: null when the candidate differs from the
+ * baseline only by the listed keys, else what else differs.
+ */
+function onlyAdded(baseline, candidate, added) {
+  let a;
+  let b;
+  try {
+    a = JSON.parse(baseline);
+    b = JSON.parse(candidate);
+  } catch {
+    return "body is not JSON";
+  }
+  for (const [section, keys] of Object.entries(added)) {
+    if (!Array.isArray(b?.[section])) return `$.${section}: not an array`;
+    for (const [i, row] of b[section].entries()) {
+      for (const k of keys) {
+        if (!row || !(k in row)) return `$.${section}.${i}.${k}: missing`;
+        delete row[k];
+      }
+    }
+  }
+  return firstDiff(a, b);
+}
+
 const results = [];
 let cursor = 0;
 await Promise.all(
@@ -383,8 +429,24 @@ await Promise.all(
         } catch {
           detail = `body differs (${lb.length} vs ${cb.length} bytes)`;
         }
-        kinds.push("body");
-        diffs.push(detail);
+        const e = STRICT
+          ? undefined
+          : (EXPECTED[`${req.method} ${req.path}`] ??
+            EXPECTED[`* ${req.path}`]);
+        const rest = e?.added ? onlyAdded(lb, cb, e.added) : "n/a";
+        if (rest === null) {
+          kinds.push("body:added");
+          diffs.push(
+            `body: only adds ${Object.entries(e.added)
+              .map(([k, v]) => `${k}[].{${v.join(",")}}`)
+              .join(", ")}`,
+          );
+        } else {
+          kinds.push("body");
+          diffs.push(
+            e?.added ? `${detail} (beyond the added keys: ${rest})` : detail,
+          );
+        }
       }
       results.push({
         ...req,

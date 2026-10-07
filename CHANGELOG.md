@@ -23,20 +23,26 @@ To see which registry commit production is serving, read the
 
 ## [Unreleased]
 
-### Added — `/v1/brand` minerals carry their text tokens and the full palette record (2026-10-07)
+### Added — `/v1/brand` serves a `-text` pair for all 21 colour families, and each mineral's full record (2026-10-07)
 
-- **Each of the seven `minerals[]` gains `onContainerLight` / `onContainerDark`**,
-  the text colour on the mineral's container, and **`textLight` / `textDark`**,
-  the mineral as text on `--base` (the value of `--color-<mineral>-text` in
-  `mzizi-tokens-globals.css`, from the registry's `textOnBaseTier()` at the
-  pinned commit). Before this a caller could not discover a mineral text
-  token and reached for `darkHex`, an accent (mzizi-registry#316).
-- **`role`, `family` and `sortOrder`** are served too, so a mineral is the
-  whole `MineralToken` from `lib/tokens/palette.source.ts`, plus `hex`.
+- **Every entry in `minerals[]`, `heritage[]` and `experimental[]` gains
+  `textLight` / `textDark`**: the family as text on `--base`, the value of
+  `--color-<name>-text` in `mzizi-tokens-globals.css`. Before this a caller
+  could find no text value for a family and reached for `darkHex`, an accent
+  (mzizi-registry#316). The values come from the registry's own
+  `textOnBaseTier()` at the pinned commit, and the build fails if any family
+  lacks a pair or if any value differs from that stylesheet.
+- **Each mineral also gains `onContainerLight` / `onContainerDark`** (text on
+  the mineral's container), **`role`, `family` and `sortOrder`**, so a
+  mineral is the whole `MineralToken` from the registry's
+  `lib/tokens/palette.generated.ts`, plus `hex`.
 - Additive: every field served before keeps its value and its relative order,
-  including `hex` (`mineralApiHex`). `scripts/parity.mjs` `EXPECTED` lists the
-  difference on `/v1/brand` and `/api/v1/brand`, and prunes the v4.8.0 pin's
-  entries, which production now serves.
+  including `hex` (`mineralApiHex`). `scripts/parity.mjs` gains `added`, an
+  `EXPECTED` entry that excuses only named new keys and holds the rest of the
+  body to production. `/v1/brand` and `/api/v1/brand` use it, and the v4.8.0
+  pin's entries, which production now serves, are pruned.
+- The served OpenAPI document (the registry's `openapi.yaml` at the pin) does
+  not list these fields yet; mzizi-dev/mzizi-registry#480 adds them.
 
 ### Changed — the registry pin moves to mzizi-registry `main` at `f70703d` (v4.8.0) (2026-10-07)
 
